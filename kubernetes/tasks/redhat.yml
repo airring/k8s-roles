@@ -45,7 +45,10 @@
 - name: wget helm
   get_url:
     url: https://storage.googleapis.com/kubernetes-helm/helm-v2.13.1-linux-amd64.tar.gz
-    dest: /usr/local/bin/helm
+    dest: /tmp/helm-v2.13.1-linux-amd64.tar.gz
+
+- name: install helm
+    shell: cd /tmp/; tar zxvf ./helm-v2.13.1-linux-amd64.tar.gz;mv linux-amd64/helm /usr/local/bin/helm
 
 - name: init helm
   shell: kubectl create serviceaccount --namespace kube-system tiller
