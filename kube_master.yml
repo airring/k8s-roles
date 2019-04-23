@@ -1,0 +1,7 @@
+---
+- hosts: docker
+  remote_user: root
+  roles:
+  - initsys
+  - docker
+  - kubernetes

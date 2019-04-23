@@ -1,0 +1,7 @@
+---
+- hosts: kubenode
+  remote_user: root
+  roles:
+  - initsys
+  - docker
+  - kube-node

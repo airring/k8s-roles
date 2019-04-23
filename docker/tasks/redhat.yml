@@ -1,0 +1,27 @@
+---
+- name: docker init
+  yum: 
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - docker
+    - docker-common
+    - docker-selinux
+    - docker-engine
+
+- name: copy file
+  template: 
+    src: docker-ce.repo 
+    dest: /etc/yum.repos.d/docker-ce.repo
+ 
+- name: yum docker
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: 
+    - device-mapper-persistent-data
+    - lvm2
+    - docker-ce
+
+- name: start docker service
+  service: name=docker enabled=true state=started

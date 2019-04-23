@@ -1,0 +1,51 @@
+---
+- name: copy kubernetes repo
+  template:
+    src: kubernetes.repo
+    dest: /etc/yum.repos.d/kubernetes.repo
+
+- name: install kube
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - kubeadm
+    - kubelet
+    - kubectl
+
+- name: copy kubeadm config
+  template:
+    src: kubeadm.conf
+    dest: /tmp/kubeadm.conf
+
+- name: change ip
+  lineinfile:
+    dest: /tmp/kubeadm.conf
+    regexp: '  advertiseAddress: 0.0.0.0'
+    line: '  advertiseAddress: {{ ansible_all_ipv4_addresses[0] }}'
+
+- name: kubeadm init
+  shell: kubeadm init --config /tmp/kubeadm.conf > /tmp/kubeinstall.txt
+
+- name: shell credit
+  shell: tail -n 2 /tmp/kubeinstall.txt > /tmp/join.sh
+
+- name: copy file
+  fetch:
+    src: /tmp/join.sh
+    dest: /tmp/joinkube.sh
+    flat: yes
+
+- name: init kubectl
+  shell: mkdir -p $HOME/.kube;sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+- name: calico install
+  shell: kubectl apply -f https://docs.projectcalico.org/v3.6/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+  
+- name: install helm
+  template:
+    src: helm
+    dest: /usr/local/bin/helm
+
+- name: init helm
+  shell: helm init --upgrade -i registry.cn-hangzhou.aliyuncs.com/google_containers/tiller:v2.13.1 --stable-repo-url https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts

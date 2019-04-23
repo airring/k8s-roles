@@ -1,0 +1,6 @@
+---
+- name: include file
+  import_tasks: redhat.yml
+  when: ansible_distribution == "CentOS"
+#- import_tasks: Ubuntu.yml
+#  when: ansible_os_family  == 'Ubuntu'
